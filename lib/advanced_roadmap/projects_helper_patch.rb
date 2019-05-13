@@ -6,7 +6,7 @@ module AdvancedRoadmap
       base.class_eval do
         def project_settings_tabs_with_more_tabs
           tabs = project_settings_tabs_without_more_tabs
-          index = tabs.index({:name => 'versions', :action => :manage_versions, :partial => 'projects/settings/versions', :label => :label_version_plural})
+          index = tabs.index({:name => 'versions', :action => :manage_versions, :partial => 'projects/settings/versions', :label => :label_version_plural,  :url=>{:tab=>"versions", :version_status=>nil, :version_name=>nil}})
           if index
             tabs.insert(index, {:name => "milestones", :action => :manage_milestones, :partial => "projects/settings/milestones", :label => :label_milestone_plural})
             tabs.select {|tab| User.current.allowed_to?(tab[:action], @project)}     

@@ -39,17 +39,24 @@ class MilestonesController < ApplicationController
   def create
     @milestone = @project.milestones.build(params[:milestone])
     @milestone.user_id = User.current.id
-    if request.post? and @milestone.save
-      if params[:versions]
-        params[:versions].each do |version|
-          milestone_version = MilestoneVersion.new
-          milestone_version.milestone_id = @milestone.id
-          milestone_version.version_id = version
-          milestone_version.save
+    if request.post?
+      if  @milestone.save
+        if params[:versions]
+          params[:versions].each do |version|
+            milestone_version = MilestoneVersion.new
+            milestone_version.milestone_id = @milestone.id
+            milestone_version.version_id = version
+            milestone_version.save
+          end
         end
-       end
-      flash[:notice] = l(:notice_successful_create)
-      redirect_to :controller => :projects, :action => :settings, :tab => "milestones", :id => @project
+        flash[:notice] = l(:notice_successful_create)
+        redirect_to :controller => :projects, :action => :settings, :tab => "milestones", :id => @project
+      else
+        @projects = Project.visible.order(:name).active
+        @versions = @project.versions
+        render :new
+      end
+
     end
   rescue ActiveRecord::RecordNotFound
     render_404
@@ -118,7 +125,7 @@ class MilestonesController < ApplicationController
     send_data(g.to_blob, :type => "image/png", :disposition => "inline")
   end
 
-private
+  private
 
   def find_project
     @project = Project.find(params[:project_id])
@@ -135,9 +142,9 @@ private
 
   def graph_theme
     {
-      :colors => ["#DB2626", "#6A6ADB", "#64D564", "#F727F7", "#EBEB20", "#303030", "#12ABAD", "#808080", "#B7580B", "#316211"],
-      :marker_color => "#AAAAAA",
-      :background_colors => ["#FFFFFF", "#FFFFFF"]
+        :colors => ["#DB2626", "#6A6ADB", "#64D564", "#F727F7", "#EBEB20", "#303030", "#12ABAD", "#808080", "#B7580B", "#316211"],
+        :marker_color => "#AAAAAA",
+        :background_colors => ["#FFFFFF", "#FFFFFF"]
     }
   end
 
